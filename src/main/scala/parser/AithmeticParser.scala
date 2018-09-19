@@ -2,6 +2,11 @@ package parser
 
 /**
   * 四則演算パーサ
+  *
+  * ノードツリーを作成し、再帰的に四則演算を行うパーサ
+  *
+  * TODO ノードツリーの生成
+  *
   */
 class ArithmeticParser {
 
@@ -36,6 +41,12 @@ class ArithmeticParser {
 sealed trait Node {
   var node: Any
 }
+
+/**
+  * 終端ノードクラス
+  *
+  * @param node
+  */
 case class Leaf(override val node: Int) extends Node {
   def +(target: Leaf): Leaf = Leaf(this.node + target.node)
   def -(target: Leaf): Leaf = Leaf(this.node - target.node)
@@ -43,13 +54,33 @@ case class Leaf(override val node: Int) extends Node {
   def /(target: Leaf): Leaf = Leaf(this.node / target.node)
 }
 
+/**
+  * 入れ子ノードクラス
+  *
+  * @param node
+  */
 case class Stem(override val node: NodeManager) extends Node
 
+/**
+  * ノード管理クラス
+  *
+  * @param left
+  * @param right
+  * @param symbol
+  */
 class NodeManager(var left: Node, var right: Node, val symbol: String) {
 
+  /**
+    * Leafの計算を行う関数
+    */
   var fnCalc: (Node, Node) => Leaf = defnCalc(symbol)
 
-
+  /**
+    * 記号から計算用の関数を定義する
+    *
+    * @param symbol
+    * @return
+    */
   private def defnCalc(symbol: String): (Node, Node) => Leaf = {
     symbol match {
       case "+" => (left: Node, right: Node) => Leaf(left.asInstanceOf[Leaf].node + right.asInstanceOf[Leaf].node)
@@ -61,7 +92,7 @@ class NodeManager(var left: Node, var right: Node, val symbol: String) {
   }
 
   /**
-    * 式を評価する
+    * 式の評価を行う
     */
   def evaluate(): Unit = {
     if (isStem(left)) {
@@ -99,9 +130,9 @@ class StatementState(var startIdx: Int, var endIdx: Int, var isRight: Boolean) {
 
   // 読み取った数値を格納するキュー
   private var numQueue = new scala.collection.mutable.Queue[Int]
-
+  // エンキュー
   def enqueue(in: String): Unit = numQueue += in.trim.toInt
-  // def dequeue: Int = numQueue.dequeue
+  // キューの内容をリストで取り出す
   def dequeueAll: List[Int] = numQueue.toList
 }
 
