@@ -60,6 +60,9 @@ class NodeManager(var left: Node, var right: Node, val symbol: String) {
     }
   }
 
+  /**
+    * 式を評価する
+    */
   def evaluate(): Unit = {
     if (isStem(left)) {
       right.asInstanceOf[Stem].node.evaluate
